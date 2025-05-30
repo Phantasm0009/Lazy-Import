@@ -1,8 +1,8 @@
-# lazy-import 🚀
+# @phantasm0009/lazy-import 🚀
 
 Smart, dynamic imports that feel static. Improve your application's startup time and bundle size by loading modules only when needed.
 
-[![npm version](https://badge.fury.io/js/lazy-import.svg)](https://www.npmjs.com/package/lazy-import)
+[![npm version](https://badge.fury.io/js/%40phantasm0009%2Flazy-import.svg)](https://www.npmjs.com/package/@phantasm0009/lazy-import)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/Tests-12%2F12%20Passing-brightgreen.svg)](#testing)
@@ -19,22 +19,22 @@ In large JavaScript/TypeScript projects, static imports load all referenced modu
 
 **Example**: If you're importing lodash but only using `debounce` 10% of the time, it's still loaded 100% of the time.
 
-**lazy-import** solves this by loading modules **only when they're actually needed**.
+**@phantasm0009/lazy-import** solves this by loading modules **only when they're actually needed**.
 
 ## 📦 Installation
 
 ```bash
-npm install lazy-import
+npm install @phantasm0009/lazy-import
 # or
-yarn add lazy-import
+yarn add @phantasm0009/lazy-import
 # or
-pnpm add lazy-import
+pnpm add @phantasm0009/lazy-import
 ```
 
 ## 🚀 Quick Start
 
 ```typescript
-import lazy from 'lazy-import';
+import lazy from '@phantasm0009/lazy-import';
 
 // ❌ Before: Always loads, even if never used
 import debounce from 'lodash/debounce';
@@ -68,7 +68,7 @@ async function setupSearch() {
 Creates a function that will lazily import a module when called.
 
 ```typescript
-import lazy from 'lazy-import';
+import lazy from '@phantasm0009/lazy-import';
 
 const loadModule = lazy('module-name');
 const module = await loadModule();
@@ -128,15 +128,6 @@ const loadDebounce = lazy.typed<LodashDebounce>('lodash/debounce');
 const debounce = await loadDebounce();
 ```
 
-#### `lazy.sync(modulePath, options?)`
-
-A synchronous-like wrapper (still returns a Promise).
-
-```typescript
-const loadModule = lazy.sync('heavy-module');
-const module = await loadModule();
-```
-
 ### Cache Management
 
 #### `lazy.clearAllCache()`
@@ -162,7 +153,7 @@ console.log(`Module paths: ${stats.keys.join(', ')}`);
 ### 1. CLI Tool with Heavy Dependencies
 
 ```typescript
-import lazy from 'lazy-import';
+import lazy from '@phantasm0009/lazy-import';
 
 // Heavy dependencies loaded only when needed
 const loadChalk = lazy('chalk');
@@ -205,7 +196,7 @@ class CLITool {
 
 ```typescript
 import express from 'express';
-import lazy from 'lazy-import';
+import lazy from '@phantasm0009/lazy-import';
 
 // Load expensive modules only when endpoints are hit
 const loadImageProcessor = lazy('./utils/imageProcessor');
@@ -237,34 +228,19 @@ app.post('/api/email/send', async (req, res) => {
   await emailService.sendEmail(req.body);
   res.json({ success: true });
 });
-
-// Preload commonly used modules for faster response times
-app.get('/api/health', async (req, res) => {
-  if (req.query.preload === 'true') {
-    // Preload modules in background
-    await Promise.all([
-      lazy.preload('./services/emailService'),
-      lazy.preload('./utils/imageProcessor')
-    ]);
-  }
-  
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 ```
 
-### 3. React Application with Code Splitting
+### 3. React Application Integration
 
 ```typescript
 import React, { Suspense } from 'react';
+import lazy from '@phantasm0009/lazy-import';
 
 // Use React.lazy() for React components (recommended approach)
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Settings = React.lazy(() => import('./pages/Settings'));
-const Analytics = React.lazy(() => import('./pages/Analytics'));
 
 // Use lazy-import for utility libraries in React
-import lazy from 'lazy-import';
-
 const loadChartLibrary = lazy('chart.js');
 const loadDataProcessing = lazy('./utils/dataProcessing');
 
@@ -290,26 +266,12 @@ function ChartComponent({ data }) {
   
   return <canvas ref={canvasRef} />;
 }
-
-function App() {
-  return (
-    <Router>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/analytics" element={<Analytics />} />
-        </Routes>
-      </Suspense>
-    </Router>
-  );
-}
 ```
 
 ### 4. TypeScript with Full Type Safety
 
 ```typescript
-import lazy from 'lazy-import';
+import lazy from '@phantasm0009/lazy-import';
 
 // Define interfaces for better type safety
 interface ImageProcessor {
@@ -336,139 +298,7 @@ async function processUserImage(imageData: ImageData) {
     resize: { width: 800, height: 600 }
   });
 }
-
-async function createChart(element: HTMLElement, data: any[]) {
-  const chartLib = await loadChartLib();
-  
-  return chartLib.createChart(element, {
-    type: 'line',
-    data: {
-      labels: data.map(d => d.label),
-      datasets: [{
-        data: data.map(d => d.value),
-        borderColor: 'rgb(75, 192, 192)',
-      }]
-    }
-  });
-}
 ```
-
-### 5. Error Handling & Retries
-
-```typescript
-import lazy from 'lazy-import';
-
-// Configure retry behavior for flaky network imports
-const loadExternalAPI = lazy('https://cdn.example.com/api-client.js', {
-  retries: 3,
-  retryDelay: 1000,
-  onError: (error, attempt) => {
-    console.warn(`API client load attempt ${attempt} failed:`, error.message);
-  }
-});
-
-// Graceful degradation for optional features
-async function initializeOptionalFeatures() {
-  const features = [
-    { name: 'analytics', loader: lazy('./analytics') },
-    { name: 'experiments', loader: lazy('./experiments') },
-    { name: 'telemetry', loader: lazy('./telemetry') }
-  ];
-  
-  const results = await Promise.allSettled(
-    features.map(async feature => {
-      try {
-        const module = await feature.loader();
-        return { name: feature.name, module, status: 'loaded' };
-      } catch (error) {
-        console.warn(`Optional feature ${feature.name} failed to load:`, error.message);
-        return { name: feature.name, status: 'failed', error };
-      }
-    })
-  );
-  
-  const loadedFeatures = results
-    .filter(result => result.status === 'fulfilled' && result.value.status === 'loaded')
-    .map(result => result.value);
-    
-  console.log(`Loaded ${loadedFeatures.length}/${features.length} optional features`);
-  return loadedFeatures;
-}
-```
-
-### 6. Advanced Caching Strategies
-
-```typescript
-import lazy from 'lazy-import';
-
-// Different caching strategies for different use cases
-const loadUserPreferences = lazy('./userPreferences', { cache: false }); // Always fresh
-const loadAppConfig = lazy('./appConfig', { cache: true }); // Cache forever
-const loadTranslations = lazy('./translations', { cache: true }); // Cache with manual control
-
-class ApplicationManager {
-  async updateUserLanguage(newLanguage: string) {
-    // Clear translation cache when language changes
-    const loadTranslations = lazy('./translations');
-    loadTranslations.clearCache();
-    
-    // Load new translations
-    const translations = await loadTranslations();
-    return translations[newLanguage];
-  }
-  
-  async getSystemInfo() {
-    const stats = lazy.getCacheStats();
-    
-    return {
-      cachedModules: stats.size,
-      moduleList: stats.keys,
-      memoryUsage: process.memoryUsage(),
-      timestamp: new Date().toISOString()
-    };
-  }
-  
-  async warmupCriticalModules() {
-    console.log('Warming up critical modules...');
-    
-    // Preload modules that are likely to be needed soon
-    await Promise.all([
-      lazy.preload('./userAuth'),
-      lazy.preload('./apiClient'),
-      lazy.preload('./errorReporting')
-    ]);
-    
-    console.log('Critical modules preloaded');
-  }
-}
-```
-
-## 🎭 Use Cases
-
-### Frontend Applications
-- **Route-based code splitting** - Load page components on navigation
-- **Feature flags** - Load experimental features conditionally
-- **Heavy libraries** - Charts, editors, image processors
-- **Polyfills** - Load only for browsers that need them
-- **A/B testing** - Load different implementations based on user segments
-
-### Backend Services
-- **Optional dependencies** - Graceful degradation when packages are missing
-- **Heavy processing modules** - Image/video processing, PDF generation
-- **Database drivers** - Load only the drivers you need
-- **Microservice communication** - Load service clients on demand
-- **Background jobs** - Load job processors when tasks are queued
-
-### CLI Tools
-- **Subcommands** - Load command implementations only when used
-- **Optional formatters** - Colors, progress bars, ASCII art
-- **Plugin systems** - Load plugins dynamically
-- **Configuration validators** - Load validation rules on demand
-
-### Development Tools
-- **Build plugins** - Load webpack/rollup plugins conditionally
-- **Test utilities** - Load testing frameworks only during tests
-- **Development servers** - Load dev tools only in development mode
 
 ## 🚀 Performance Benefits
 
@@ -507,76 +337,13 @@ For frontend applications, lazy-import enables better code splitting:
 - **Feature-based splitting**: 30-50% reduction in unused code
 - **Library-based splitting**: 50-80% reduction for heavy libraries
 
-### Memory Usage Optimization
+## 🏢 Organization
 
-- **Conditional loading**: Only load modules when features are enabled
-- **Cache management**: Fine-grained control over memory usage
-- **Garbage collection**: Modules can be unloaded by clearing cache
+This package is maintained by **@phantasm0009** organization, focusing on performance optimization tools for JavaScript/TypeScript applications.
 
-## 🧪 Testing
-
-lazy-import includes a comprehensive test suite with 12 test cases covering:
-
-```bash
-npm test
-```
-
-**Test Coverage:**
-- ✅ Basic functionality and module loading
-- ✅ Caching behavior and performance
-- ✅ Error handling and graceful failures
-- ✅ TypeScript type safety and inference
-- ✅ Preloading and background loading
-- ✅ Multiple module loading
-- ✅ Cache management and clearing
-- ✅ Integration with Node.js built-ins
-- ✅ Advanced configuration options
-- ✅ Memory management
-- ✅ Concurrent loading scenarios
-- ✅ Edge cases and error conditions
-
-## 🔧 Configuration
-
-### Global Configuration
-
-```typescript
-import lazy from 'lazy-import';
-
-// Set default options for all lazy imports
-const createLazy = (modulePath: string) => lazy(modulePath, {
-  cache: true,
-  retries: 2,
-  retryDelay: 500,
-  onError: (error, attempt) => {
-    console.warn(`Module ${modulePath} failed on attempt ${attempt}:`, error.message);
-  }
-});
-```
-
-### Environment-Specific Configuration
-
-```typescript
-// Development: More retries and detailed logging
-const devConfig = {
-  retries: 5,
-  retryDelay: 1000,
-  onError: (error, attempt) => {
-    console.error(`[DEV] Load failed (${attempt}/5):`, error);
-  }
-};
-
-// Production: Fail fast with minimal logging
-const prodConfig = {
-  retries: 1,
-  retryDelay: 100,
-  onError: (error, attempt) => {
-    analytics.track('module_load_failed', { error: error.message, attempt });
-  }
-};
-
-const config = process.env.NODE_ENV === 'development' ? devConfig : prodConfig;
-const loadCriticalModule = lazy('./critical-module', config);
-```
+### Other packages in the organization:
+- `@phantasm0009/lazy-import` - This package
+- More performance tools coming soon...
 
 ## 🤝 Contributing
 
@@ -586,7 +353,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lazy-import.git
+git clone https://github.com/Phantasm0009/lazy-import.git
 cd lazy-import
 
 # Install dependencies
@@ -603,20 +370,18 @@ cd examples
 npm install
 npm run example:basic
 npm run example:advanced
-npm run example:enhanced
 ```
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/yourusername)
+MIT © [Phantasm0009](https://github.com/Phantasm0009)
 
-## 🔗 Related Projects
+## 🔗 Links
 
-- **React.lazy()** - For React component lazy loading
-- **@loadable/component** - React code splitting library
-- **webpack** - Module bundler with code splitting
-- **rollup** - Module bundler for libraries
-- **dynamic-import-polyfill** - Polyfill for older browsers
+- **npm**: https://www.npmjs.com/package/@phantasm0009/lazy-import
+- **GitHub**: https://github.com/Phantasm0009/lazy-import
+- **Issues**: https://github.com/Phantasm0009/lazy-import/issues
+- **Documentation**: https://github.com/Phantasm0009/lazy-import#readme
 
 ## 📊 Benchmarks
 
@@ -631,18 +396,8 @@ Performance comparison between static imports and lazy-import:
 
 *Benchmarks based on a typical Node.js CLI application with 20+ dependencies*
 
-## 🎯 Roadmap
-
-- [ ] **Plugin System** - Extensible architecture for custom loaders
-- [ ] **React Integration** - Hooks and components for React apps
-- [ ] **Webpack Plugin** - Better integration with webpack builds
-- [ ] **Performance Monitoring** - Built-in metrics and analytics
-- [ ] **Module Federation** - Support for micro-frontend architectures
-- [ ] **Service Worker Support** - Offline module caching
-- [ ] **CLI Tool** - Analyze and optimize lazy loading patterns
-
 ---
 
-**Made with ❤️ by developers who care about performance**
+**Made with ❤️ by @phantasm0009 organization**
 
 *If you find this project useful, please consider giving it a ⭐ on GitHub!*

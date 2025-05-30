@@ -1,13 +1,15 @@
 {
-  "name": "lazy-import",
-  "version": "0.1.0",
-  "description": "Smart, dynamic imports that feel static",
+  "name": "@phantasm0009/lazy-import",
+  "version": "1.0.0",
+  "description": "Smart, dynamic imports that feel static. Improve your application's startup time and bundle size by loading modules only when needed.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "rollup -c",
@@ -15,7 +17,8 @@
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "prepare": "npm run build",
-    "demo": "node serve-demo.js"
+    "demo": "node serve-demo.js",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "keywords": [
     "import",
@@ -23,9 +26,17 @@
     "lazy-loading",
     "performance",
     "optimization",
-    "tree-shaking"
+    "tree-shaking",
+    "lazy",
+    "modules",
+    "typescript",
+    "nodejs",
+    "browser",
+    "cache",
+    "preload",
+    "phantasm0009"
   ],
-  "author": "",
+  "author": "Phantasm0009 <atiwar0414@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.0",
@@ -42,10 +53,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/lazy-import.git"
+    "url": "git+https://github.com/Phantasm0009/lazy-import.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/lazy-import/issues"
+    "url": "https://github.com/Phantasm0009/lazy-import/issues"
   },
-  "homepage": "https://github.com/yourusername/lazy-import#readme"
+  "homepage": "https://github.com/Phantasm0009/lazy-import#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

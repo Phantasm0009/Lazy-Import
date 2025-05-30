@@ -1,7 +1,7 @@
 {
   "name": "lazy-import-examples",
   "version": "1.0.0",
-  "description": "Examples for lazy-import package",
+  "description": "Examples for @phantasm0009/lazy-import package",
   "scripts": {
     "example:basic": "node basic-usage.js",
     "example:advanced": "node advanced-usage.js",
@@ -14,7 +14,7 @@
     "install-deps": "npm install chalk inquirer figlet cli-progress ora express multer"
   },
   "dependencies": {
-    "lazy-import": "file:../"
+    "@phantasm0009/lazy-import": "file:../"
   },
   "optionalDependencies": {
     "chalk": "^4.1.2",
