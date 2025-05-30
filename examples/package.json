@@ -1,0 +1,33 @@
+{
+  "name": "lazy-import-examples",
+  "version": "1.0.0",
+  "description": "Examples for lazy-import package",
+  "scripts": {
+    "example:basic": "node basic-usage.js",
+    "example:advanced": "node advanced-usage.js",
+    "example:enhanced": "node enhanced-usage.js",
+    "example:server": "node nodejs-server.js",
+    "example:cli": "node cli-tool.js",
+    "react:setup": "cd react-app && npm install",
+    "react:dev": "cd react-app && npm run dev",
+    "react:build": "cd react-app && npm run build",
+    "install-deps": "npm install chalk inquirer figlet cli-progress ora express multer"
+  },
+  "dependencies": {
+    "lazy-import": "file:../"
+  },
+  "optionalDependencies": {
+    "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
+    "express": "^4.21.2",
+    "figlet": "^1.8.1",
+    "inquirer": "^8.2.6",
+    "multer": "^1.4.4",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/chalk": "^0.4.31",
+    "@types/figlet": "^1.7.0",
+    "@types/inquirer": "^9.0.8"
+  }
+}

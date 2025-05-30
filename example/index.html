@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lazy-import demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      margin: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .result {
+      margin-top: 20px;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>lazy-import demo</h1>
+  
+  <p>This example demonstrates how lazy-import can be used to delay loading modules until they're needed.</p>
+  
+  <div>
+    <button id="btn-load-module">Load Module</button>
+    <button id="btn-load-cached">Load Cached Module</button>
+    <button id="btn-preload">Preload Module</button>
+    <button id="btn-load-multiple">Load Multiple Modules</button>
+  </div>
+  
+  <div class="result">
+    <h3>Result:</h3>
+    <pre id="output">Click a button to see the result...</pre>
+  </div>
+  
+  <script type="module">
+    // Import from the correct path (go up one directory to find dist)
+    import lazy from '../dist/index.esm.js';
+    
+    const outputEl = document.getElementById('output');
+    
+    // Show timing for each operation
+    const timed = async (name, fn) => {
+      outputEl.textContent = `Running ${name}...`;
+      outputEl.className = '';
+      
+      try {
+        const start = performance.now();
+        const result = await fn();
+        const end = performance.now();
+        
+        outputEl.textContent = `${name} completed in ${(end - start).toFixed(2)}ms\n\nResult: ${JSON.stringify(result, null, 2)}`;
+        return result;
+      } catch (error) {
+        outputEl.className = 'error';
+        outputEl.textContent = `${name} failed:\n\n${error.message}`;
+        console.error('Demo error:', error);
+      }
+    };
+    
+    // Basic usage - Use absolute paths from server root
+    document.getElementById('btn-load-module').addEventListener('click', async () => {
+      await timed('Basic module load', async () => {
+        const module = lazy('/example/mocks/test-module.js');
+        return await module();
+      });
+    });
+    
+    // Cached usage - Use absolute paths from server root
+    document.getElementById('btn-load-cached').addEventListener('click', async () => {
+      await timed('Cached module load', async () => {
+        // First load (will be cached)
+        if (!window.cachedModule) {
+          window.cachedModule = lazy('/example/mocks/test-module.js', { cache: true });
+          const result = await window.cachedModule();
+          return {
+            message: "Module loaded and cached. Click again to load from cache.",
+            moduleContent: result
+          };
+        } else {
+          // Second load (should be faster)
+          const result = await window.cachedModule();
+          return {
+            message: "Loaded from cache!",
+            moduleContent: result
+          };
+        }
+      });
+    });
+    
+    // Preload usage - Use absolute paths from server root
+    document.getElementById('btn-preload').addEventListener('click', async () => {
+      await timed('Module preloading', async () => {
+        // Preload the module
+        const preloadedModule = await lazy.preload('/example/mocks/another-module.js');
+        return {
+          message: "Module preloaded successfully!",
+          moduleContent: preloadedModule
+        };
+      });
+    });
+    
+    // Multiple modules - Use absolute paths from server root
+    document.getElementById('btn-load-multiple').addEventListener('click', async () => {
+      await timed('Loading multiple modules', async () => {
+        const modules = lazy.all({
+          test: '/example/mocks/test-module.js',
+          another: '/example/mocks/another-module.js'
+        });
+        
+        return await modules();
+      });
+    });
+  </script>
+</body>
+</html>

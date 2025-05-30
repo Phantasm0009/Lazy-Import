@@ -1,0 +1,51 @@
+{
+  "name": "lazy-import",
+  "version": "0.1.0",
+  "description": "Smart, dynamic imports that feel static",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "prepare": "npm run build",
+    "demo": "node serve-demo.js"
+  },
+  "keywords": [
+    "import",
+    "dynamic-import",
+    "lazy-loading",
+    "performance",
+    "optimization",
+    "tree-shaking"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
+    "@types/jest": "^27.4.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "eslint": "^8.8.0",
+    "jest": "^27.4.7",
+    "rollup": "^2.67.0",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/lazy-import.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/lazy-import/issues"
+  },
+  "homepage": "https://github.com/yourusername/lazy-import#readme"
+}
