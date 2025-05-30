@@ -14,7 +14,7 @@
     "install-deps": "npm install chalk inquirer figlet cli-progress ora express multer"
   },
   "dependencies": {
-    "@phantasm0009/lazy-import": "file:../"
+    "@phantasm0009/lazy-import": "file:.."
   },
   "optionalDependencies": {
     "chalk": "^4.1.2",
