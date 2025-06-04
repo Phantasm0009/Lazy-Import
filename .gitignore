@@ -401,3 +401,9 @@ flycheck_*.el
 
 # network security
 /network-security.data
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettierrc
