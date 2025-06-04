@@ -2,7 +2,7 @@
 
 Smart, dynamic imports that feel static. Improve your application's startup time and bundle size by loading modules only when needed.
 
-[![npm version](https://badge.fury.io/js/%40phantasm0009%2Flazy-import.svg)](https://www.npmjs.com/package/@phantasm0009/lazy-import)
+[![npm version](https://badge.fury.io/js/@phantasm0009%2Flazy-import.svg)](https://www.npmjs.com/package/@phantasm0009/lazy-import)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/Tests-19%2F19%20Passing-brightgreen.svg)](#testing)
