@@ -110,9 +110,9 @@ function createImportCall(t: any, modulePath: string, chunkName: string, include
 
 function generateChunkName(modulePath: string, template: string): string {
   const name = modulePath
-    .replace(/^[.\/]+/, '') // Remove leading ./ or ../
+    .replace(/^[./]+/, '') // Remove leading ./ or ../
     .replace(/\.[^.]+$/, '') // Remove extension
-    .replace(/[\/\\]/g, '-') // Replace path separators
+    .replace(/[/\\]/g, '-') // Replace path separators
     .replace(/[^a-zA-Z0-9-_]/g, ''); // Remove special chars
   
   return template.replace('[name]', name);

@@ -123,9 +123,9 @@ export class LazyImportTransformer {
   
   private generateChunkName(modulePath: string): string {
     const name = modulePath
-      .replace(/^[.\/]+/, '') // Remove leading ./ or ../
+      .replace(/^[./]+/, '') // Remove leading ./ or ../
       .replace(/\.[^.]+$/, '') // Remove extension
-      .replace(/[\/\\]/g, '-') // Replace path separators
+      .replace(/[/\\]/g, '-') // Replace path separators
       .replace(/[^a-zA-Z0-9-_]/g, ''); // Remove special chars
     
     return this.options.chunkNameTemplate.replace('[name]', name);

@@ -134,7 +134,7 @@ class LazyImportAnalyzer {
     return transformCount * (2000 + 10000);
   }
 
-  private extractChunkInfo(content: string, filePath: string): AnalysisResult['chunkInfo'] {
+  private extractChunkInfo(content: string, _filePath: string): AnalysisResult['chunkInfo'] {
     const chunkInfo: AnalysisResult['chunkInfo'] = [];
     const lines = content.split('\n');
     

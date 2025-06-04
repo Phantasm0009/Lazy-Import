@@ -22,7 +22,6 @@ export interface EsbuildLazyImportOptions extends BundlerTransformOptions {
 export function esbuildLazyImport(options: EsbuildLazyImportOptions = {}): Plugin {
   const transformer = new LazyImportTransformer(options);
   const filter = options.filter || /\.(js|jsx|ts|tsx)$/;
-  const namespace = options.namespace || 'lazy-import';
   
   return {
     name: 'esbuild-lazy-import',
@@ -51,7 +50,8 @@ export function esbuildLazyImport(options: EsbuildLazyImportOptions = {}): Plugi
           return {
             contents: result.code,
             loader: getLoader(args.path)
-          };        } catch (error: unknown) {
+          };        
+        } catch (error: unknown) {
           return {
             errors: [{
               text: `Failed to transform lazy imports: ${error instanceof Error ? error.message : String(error)}`,

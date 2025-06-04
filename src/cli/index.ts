@@ -105,10 +105,15 @@ Documentation: https://github.com/phantasm0009/lazy-import
 
 function showVersion() {
   try {
-    const path = require('path');
-    const packageJsonPath = path.join(__dirname, '..', 'package.json');
-    const packageJson = require(packageJsonPath);
-    console.log(`@phantasm0009/lazy-import v${packageJson.version}`);
+    // Use dynamic import with await
+    import('path').then(path => {
+      const packageJsonPath = path.join(__dirname, '..', 'package.json');
+      import(packageJsonPath).then(packageJson => {
+        console.log(`@phantasm0009/lazy-import v${packageJson.version}`);
+      }).catch(() => {
+        console.log(`@phantasm0009/lazy-import v1.0.0`);
+      });
+    });
   } catch (error) {
     console.log(`@phantasm0009/lazy-import v1.0.0`);
   }
