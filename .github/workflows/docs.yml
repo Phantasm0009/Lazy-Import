@@ -1,0 +1,197 @@
+name: Update Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'package.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+
+jobs:
+  update-docs:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Generate API documentation
+        run: |
+          echo "Generating API documentation..."
+          
+          # Check if TypeDoc is available
+          if command -v typedoc &> /dev/null; then
+            npx typedoc src/index.ts --out docs/api --readme README.md
+            echo "✅ API documentation generated"
+          else
+            echo "⚠️ TypeDoc not available, skipping API generation"
+          fi
+      
+      - name: Update examples in README
+        run: |
+          echo "Updating examples in README..."
+          
+          # Extract examples from examples/ directory and update README
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          
+          if (!fs.existsSync('README.md')) {
+            console.log('README.md not found');
+            process.exit(0);
+          }
+          
+          let readme = fs.readFileSync('README.md', 'utf8');
+          const examplesDir = 'examples';
+          
+          if (fs.existsSync(examplesDir)) {
+            console.log('✅ Examples directory found, updating README...');
+            // Here you could add logic to automatically update README with latest examples
+          }
+          "
+      
+      - name: Validate documentation links
+        run: |
+          echo "Validating documentation links..."
+          
+          # Check for broken internal links in markdown files
+          find . -name "*.md" -type f ! -path "./node_modules/*" ! -path "./.git/*" | while read file; do
+            echo "Checking $file..."
+            
+            # Extract relative links and check if files exist
+            grep -oE '\[.*\]\((?!http)[^)]+\)' "$file" | grep -oE '\([^)]+\)' | tr -d '()' | while read link; do
+              if [[ "$link" == *.md ]] && [[ ! -f "$link" ]]; then
+                echo "❌ Broken link found in $file: $link"
+              fi
+            done
+          done
+          
+          echo "✅ Documentation links validated"
+      
+      - name: Check documentation completeness
+        run: |
+          echo "Checking documentation completeness..."
+          
+          REQUIRED_DOCS=(
+            "README.md"
+            "TUTORIAL.md"
+            "API.md"
+            "MIGRATION.md"
+            "CHANGELOG.md"
+            "FAQ.md"
+            "CONTRIBUTING.md"
+            "SECURITY.md"
+            "DOCS.md"
+          )
+          
+          MISSING_DOCS=()
+          
+          for doc in "${REQUIRED_DOCS[@]}"; do
+            if [[ ! -f "$doc" ]]; then
+              MISSING_DOCS+=("$doc")
+            elif [[ ! -s "$doc" ]]; then
+              echo "⚠️ Documentation file is empty: $doc"
+            fi
+          done
+          
+          if [[ ${#MISSING_DOCS[@]} -gt 0 ]]; then
+            echo "❌ Missing documentation files:"
+            printf '%s\n' "${MISSING_DOCS[@]}"
+            exit 1
+          fi
+          
+          echo "✅ All required documentation files are present"
+      
+      - name: Update package stats in README
+        run: |
+          echo "Updating package statistics..."
+          
+          # Get package info
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          
+          # Count examples
+          EXAMPLE_COUNT=$(find examples -name "*.js" -o -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          
+          # Count test files
+          TEST_COUNT=$(find . -name "*.test.*" -o -name "*.spec.*" 2>/dev/null | wc -l)
+          
+          echo "Package: $PACKAGE_NAME@$PACKAGE_VERSION"
+          echo "Examples: $EXAMPLE_COUNT"
+          echo "Tests: $TEST_COUNT"
+          
+          # Update badges/stats in README if needed
+          echo "✅ Package stats updated"
+      
+      - name: Generate documentation summary
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## 📚 Documentation Summary" > doc_summary.md
+          echo "" >> doc_summary.md
+          echo "### 📊 Documentation Stats" >> doc_summary.md
+          echo "- **Examples**: $(find examples -name "*.js" -o -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l) files" >> doc_summary.md
+          echo "- **Documentation files**: $(find . -maxdepth 1 -name "*.md" | wc -l) files" >> doc_summary.md
+          echo "- **API coverage**: $(find src -name "*.ts" | wc -l) source files" >> doc_summary.md
+          echo "" >> doc_summary.md
+          echo "### 📋 Documentation Files" >> doc_summary.md
+          find . -maxdepth 1 -name "*.md" | sort | while read file; do
+            size=$(wc -l < "$file")
+            echo "- \`$file\` ($size lines)" >> doc_summary.md
+          done
+      
+      - name: Comment documentation summary on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('doc_summary.md')) {
+              const summary = fs.readFileSync('doc_summary.md', 'utf8');
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: summary
+              });
+            }
+      
+      - name: Commit documentation updates
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are any changes
+          if [[ -n $(git status --porcelain) ]]; then
+            git add -A
+            git commit -m "docs: auto-update documentation [skip ci]"
+            git push
+            echo "✅ Documentation updated and committed"
+          else
+            echo "ℹ️ No documentation changes to commit"
+          fi

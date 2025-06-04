@@ -1,0 +1,76 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Phantasm0009"
+    assignees:
+      - "Phantasm0009"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    
+    # Group updates for better management
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "jest*"
+          - "ts-*"
+        
+      bundler-dependencies:
+        patterns:
+          - "webpack*"
+          - "rollup*"
+          - "vite*"
+          - "esbuild*"
+          - "@rollup/*"
+        
+      babel-dependencies:
+        patterns:
+          - "@babel/*"
+          - "babel-*"
+    
+    # Security updates
+    security-updates:
+      enabled: true
+    
+    # Version update strategy
+    versioning-strategy: "increase"
+    
+    # Ignore specific dependencies if needed
+    ignore:
+      - dependency-name: "typescript"
+        # Keep TypeScript at current major version for stability
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "Phantasm0009"
+    assignees:
+      - "Phantasm0009"
+    commit-message:
+      prefix: "chore(actions)"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "automated"

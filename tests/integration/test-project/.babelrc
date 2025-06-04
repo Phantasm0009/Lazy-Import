@@ -1,0 +1,13 @@
+{
+  "presets": ["@babel/preset-env"],
+  "plugins": [
+    [
+      "@phantasm0009/lazy-import/babel",
+      {
+        "chunkComment": true,
+        "preserveOptions": true,
+        "debug": true
+      }
+    ]
+  ]
+}

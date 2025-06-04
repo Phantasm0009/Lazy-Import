@@ -1,0 +1,22 @@
+{
+  "testConfig": {
+    "files": 10,
+    "lazyCallsPerFile": 5,
+    "totalLazyCalls": 50
+  },
+  "withSBH": {
+    "buildTime": 1441.759699999995,
+    "bundleSize": 0,
+    "chunks": 1
+  },
+  "withoutSBH": {
+    "buildTime": 1215.1251000000047,
+    "bundleSize": 0,
+    "chunks": 1
+  },
+  "comparison": {
+    "buildTimeChange": 18.65113312201266,
+    "bundleSizeChange": null,
+    "chunksCreated": 0
+  }
+}

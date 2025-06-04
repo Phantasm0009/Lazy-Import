@@ -1,0 +1,16 @@
+{
+  "name": "lazy-import-performance-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:with-sbh": "vite build",
+    "build:without-sbh": "vite build --config vite.config.no-sbh.js"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "@phantasm0009/lazy-import": "file:../../../"
+  }
+}

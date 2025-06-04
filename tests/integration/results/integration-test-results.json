@@ -1,0 +1,42 @@
+{
+  "vite": {
+    "bundler": "vite",
+    "transformCount": 0,
+    "preservedOptions": 0,
+    "chunkComments": 0,
+    "originalLazyCalls": 6,
+    "transformedImports": 0,
+    "helperFunctions": 0,
+    "errors": []
+  },
+  "rollup": {
+    "bundler": "rollup",
+    "transformCount": 5,
+    "preservedOptions": 0,
+    "chunkComments": 5,
+    "originalLazyCalls": 6,
+    "transformedImports": 5,
+    "helperFunctions": 0,
+    "errors": []
+  },
+  "webpack": {
+    "bundler": "webpack",
+    "transformCount": 0,
+    "preservedOptions": 0,
+    "chunkComments": 0,
+    "originalLazyCalls": 6,
+    "transformedImports": 0,
+    "helperFunctions": 0,
+    "errors": []
+  },
+  "babel": {
+    "bundler": "babel",
+    "transformCount": 0,
+    "preservedOptions": 0,
+    "chunkComments": 5,
+    "originalLazyCalls": 6,
+    "transformedImports": 0,
+    "helperFunctions": 0,
+    "errors": []
+  }
+}

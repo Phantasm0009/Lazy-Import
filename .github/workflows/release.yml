@@ -1,0 +1,195 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 2.1.1, 2.2.0, 3.0.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release (patch, minor, major, prerelease)'
+        required: true
+        default: 'minor'
+        type: string
+      prerelease:
+        description: 'Is this a prerelease?'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: 'Create as draft release?'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate version format
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
+            echo "❌ Invalid version format: $VERSION"
+            exit 1
+          fi
+
+          if git tag | grep -q "^v$VERSION$"; then
+            echo "❌ Version $VERSION already exists"
+            exit 1
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Run full test suite
+        run: npm run test:all
+      
+      - name: Build package
+        run: npm run build
+      
+      - name: Verify build artifacts
+        run: |
+          test -f dist/index.js || (echo "Missing dist/index.js" && exit 1)
+          test -f dist/index.esm.js || (echo "Missing dist/index.esm.js" && exit 1)
+          test -f dist/index.d.ts || (echo "Missing dist/index.d.ts" && exit 1)
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: validate-release
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Update package version
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          npm version "$VERSION" --no-git-tag-version
+      
+      - name: Update CHANGELOG.md
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          DATE=$(date +%Y-%m-%d)
+
+          cat > changelog_entry.tmp <<'EOF'
+## [$VERSION] - $DATE
+
+### Added
+- Release version $VERSION
+
+### Changed
+- Package version updated to $VERSION
+
+### Fixed
+- Various bug fixes and improvements
+
+EOF
+          if [ -f CHANGELOG.md ]; then
+            cat changelog_entry.tmp CHANGELOG.md > temp && mv temp CHANGELOG.md
+          else
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            cat changelog_entry.tmp >> CHANGELOG.md
+          fi
+          rm changelog_entry.tmp
+      
+      - name: Commit version changes
+        run: |
+          git add package.json CHANGELOG.md
+          git commit -m "chore: release version ${{ needs.validate-release.outputs.version }}"
+      
+      - name: Create git tag
+        run: |
+          git tag -a "${{ needs.validate-release.outputs.tag }}" -m "Release ${{ needs.validate-release.outputs.tag }}"
+      
+      - name: Push changes and tag
+        run: |
+          git push origin main
+          git push origin --tags
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          NOTES=$(cat <<EOF
+# @phantasm0009/lazy-import v$VERSION
+
+## 🚀 What's New
+
+This release includes the latest improvements and bug fixes.
+
+## 📦 Installation
+
+\`\`\`bash
+npm install @phantasm0009/lazy-import@$VERSION
+\`\`\`
+
+## 🔗 Links
+
+- [Documentation](https://github.com/phantasm0009/lazy-import#readme)
+- [npm Package](https://www.npmjs.com/package/@phantasm0009/lazy-import)
+- [Changelog](https://github.com/phantasm0009/lazy-import/blob/main/CHANGELOG.md)
+
+___
+
+For the complete changelog, see [CHANGELOG.md](https://github.com/phantasm0009/lazy-import/blob/main/CHANGELOG.md).
+EOF
+)
+          NOTES="${NOTES//'%'/'%25'}"
+          NOTES="${NOTES//$'\n'/'%0A'}"
+          NOTES="${NOTES//$'\r'/'%0D'}"
+          echo "release_notes=$NOTES" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.validate-release.outputs.tag }}
+          release_name: ${{ needs.validate-release.outputs.tag }}
+          body: ${{ steps.release_notes.outputs.release_notes }}
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+      
+      - name: Success notification
+        run: |
+          echo "🎉 Release ${{ needs.validate-release.outputs.tag }} created successfully!"
+            echo "📦 Package URL: https://www.npmjs.com/package/@phantasm0009/lazy-import"

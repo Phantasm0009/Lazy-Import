@@ -1,0 +1,201 @@
+{
+  "timestamp": "2025-06-03T23:49:01.919Z",
+  "summary": {
+    "totalTests": 19,
+    "passedTests": 19,
+    "failedTests": 0,
+    "duration": 70862
+  },
+  "timings": {
+    "edgeTime": 13,
+    "integrationTime": 34210,
+    "perfTime": 36637,
+    "totalTime": 70862
+  },
+  "edgeCases": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "results": [
+      {
+        "name": "Nested lazy calls",
+        "passed": true,
+        "expected": 0,
+        "actual": 0,
+        "output": "\nfunction createNestedLoader(moduleName) {\n  return lazy(lazy(moduleName).toString());\n}\n"
+      },
+      {
+        "name": "Conditional lazy imports",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nconst moduleLoader = process.env.NODE_ENV === 'production' \n  ? (() => import(/* webpackChunkName: \"prod-module\" */ 'prod-module'))\n  : (() => import(/* webpackChunkName: \"dev-module\" */ 'dev-module'));\n"
+      },
+      {
+        "name": "Template literal modules",
+        "passed": true,
+        "expected": 0,
+        "actual": 0,
+        "output": "\nconst version = '1.0';\nconst loader = lazy(`module-v${version}`);\n"
+      },
+      {
+        "name": "Complex options object",
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "output": "function __lazyImportHelper(importFn, options = {}) {\n  const { cache = true, retries = 0, retryDelay = 1000, onError } = options;\n  \n  let cachedPromise = null;\n  \n  const importWithRetry = async (attempt = 0) => {\n    try {\n      if (cache && cachedPromise) {\n        return await cachedPromise;\n      }\n      \n      const modulePromise = importFn();\n      \n      if (cache) {\n        cachedPromise = modulePromise;\n      }\n      \n      return await modulePromise;\n    } catch (error) {\n      const currentAttempt = attempt + 1;\n      \n      if (onError) {\n        onError(error, currentAttempt);\n      }\n      \n      if (currentAttempt <= retries) {\n        await new Promise(resolve => setTimeout(resolve, retryDelay));\n        return importWithRetry(currentAttempt);\n      }\n      \n      throw error;\n    }\n  };\n  \n  const lazyFunction = () => importWithRetry();\n  lazyFunction.preload = () => importWithRetry();\n  lazyFunction.clearCache = () => { cachedPromise = null; };\n  lazyFunction.isCached = () => cachedPromise !== null;\n  \n  return lazyFunction;\n}\n\n\nconst complexLoader = __lazyImportHelper(() => import(/* webpackChunkName: \"complex-module\" */ 'complex-module'), {\n  retries: Math.max(3, process.env.RETRIES || 1),\n  timeout: 5000,\n  onError: (error) => console.log('Failed:', error),\n  cache: true,\n  preload: false\n});\n"
+      },
+      {
+        "name": "Function expression in lazy call",
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "output": "\nconst dynamicLoader = (function() {\n  return (() => import(/* webpackChunkName: \"dynamic-function-module\" */ 'dynamic-function-module'));\n})();\n"
+      },
+      {
+        "name": "Arrow function with lazy",
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "output": "\nconst arrowLoader = () => (() => import(/* webpackChunkName: \"arrow-module\" */ 'arrow-module'));\nconst result = arrowLoader();\n"
+      },
+      {
+        "name": "Mixed static and dynamic imports",
+        "passed": true,
+        "expected": 1,
+        "actual": 1,
+        "output": "\nimport staticModule from 'static-module';\nconst lazyLoader = (() => import(/* webpackChunkName: \"lazy-module\" */ 'lazy-module'));\nconst dynamicLoader = lazy(getDynamicModuleName());\n"
+      },
+      {
+        "name": "Async/await patterns",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nasync function loadModules() {\n  const [mod1, mod2] = await Promise.all([\n    (() => import(/* webpackChunkName: \"module1\" */ 'module1'))(),\n    (() => import(/* webpackChunkName: \"module2\" */ 'module2'))()\n  ]);\n  return { mod1, mod2 };\n}\n"
+      },
+      {
+        "name": "Object method lazy calls",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nconst moduleManager = {\n  loadUtils: (() => import(/* webpackChunkName: \"utils\" */ 'utils')),\n  loadHelpers: (() => import(/* webpackChunkName: \"helpers\" */ 'helpers')),\n  loadDynamic(name) {\n    return lazy(name);\n  }\n};\n"
+      },
+      {
+        "name": "Destructuring with lazy",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nconst { load1, load2 } = {\n  load1: (() => import(/* webpackChunkName: \"module1\" */ 'module1')),\n  load2: (() => import(/* webpackChunkName: \"module2\" */ 'module2'))\n};\n"
+      },
+      {
+        "name": "Class method lazy calls",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nclass ModuleLoader {\n  constructor() {\n    this.staticLoader = (() => import(/* webpackChunkName: \"static-module\" */ 'static-module'));\n  }\n  \n  loadDynamic(moduleName) {\n    return lazy(moduleName);\n  }\n  \n  static loadStatic() {\n    return (() => import(/* webpackChunkName: \"class-static-module\" */ 'class-static-module'));\n  }\n}\n"
+      },
+      {
+        "name": "Immediately invoked lazy calls",
+        "passed": true,
+        "expected": 3,
+        "actual": 3,
+        "output": "\nconst result1 = await (() => import(/* webpackChunkName: \"immediate1\" */ 'immediate1'))();\nconst result2 = (() => import(/* webpackChunkName: \"immediate2\" */ 'immediate2'))();\nconst result3 = (await (() => import(/* webpackChunkName: \"immediate3\" */ 'immediate3'))()).default;\n"
+      },
+      {
+        "name": "Try-catch with lazy",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\ntry {\n  const module = await (() => import(/* webpackChunkName: \"risky-module\" */ 'risky-module'))();\n  return module.process();\n} catch (error) {\n  const fallback = await (() => import(/* webpackChunkName: \"fallback-module\" */ 'fallback-module'))();\n  return fallback.process();\n}\n"
+      },
+      {
+        "name": "Ternary operator with lazy",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nconst loader = isAdvanced \n  ? (() => import(/* webpackChunkName: \"advanced-module\" */ 'advanced-module')) \n  : (() => import(/* webpackChunkName: \"basic-module\" */ 'basic-module'));\n"
+      },
+      {
+        "name": "Lazy in array",
+        "passed": true,
+        "expected": 2,
+        "actual": 2,
+        "output": "\nconst loaders = [\n  (() => import(/* webpackChunkName: \"module1\" */ 'module1')),\n  (() => import(/* webpackChunkName: \"module2\" */ 'module2')),\n  lazy(dynamicName)\n];\n"
+      }
+    ]
+  },
+  "integration": {
+    "bundlers": [
+      "vite",
+      "rollup",
+      "webpack",
+      "babel"
+    ],
+    "passed": 4,
+    "failed": 0,
+    "results": {
+      "vite": {
+        "bundler": "vite",
+        "transformCount": 0,
+        "preservedOptions": 0,
+        "chunkComments": 0,
+        "originalLazyCalls": 6,
+        "transformedImports": 0,
+        "helperFunctions": 0,
+        "errors": []
+      },
+      "rollup": {
+        "bundler": "rollup",
+        "transformCount": 5,
+        "preservedOptions": 0,
+        "chunkComments": 5,
+        "originalLazyCalls": 6,
+        "transformedImports": 5,
+        "helperFunctions": 0,
+        "errors": []
+      },
+      "webpack": {
+        "bundler": "webpack",
+        "transformCount": 0,
+        "preservedOptions": 0,
+        "chunkComments": 0,
+        "originalLazyCalls": 6,
+        "transformedImports": 0,
+        "helperFunctions": 0,
+        "errors": []
+      },
+      "babel": {
+        "bundler": "babel",
+        "transformCount": 0,
+        "preservedOptions": 0,
+        "chunkComments": 5,
+        "originalLazyCalls": 6,
+        "transformedImports": 0,
+        "helperFunctions": 0,
+        "errors": []
+      }
+    }
+  },
+  "performance": {
+    "testConfig": {
+      "files": 10,
+      "lazyCallsPerFile": 5,
+      "totalLazyCalls": 50
+    },
+    "withSBH": {
+      "buildTime": 1441.759699999995,
+      "bundleSize": 0,
+      "chunks": 1
+    },
+    "withoutSBH": {
+      "buildTime": 1215.1251000000047,
+      "bundleSize": 0,
+      "chunks": 1
+    },
+    "comparison": {
+      "buildTimeChange": 18.65113312201266,
+      "bundleSizeChange": null,
+      "chunksCreated": 0
+    }
+  }
+}
