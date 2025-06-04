@@ -9,6 +9,48 @@ Smart, dynamic imports that feel static. Improve your application's startup time
 [![Static Bundle Helper](https://img.shields.io/badge/SBH-Production%20Ready-success.svg)](#static-bundle-helper)
 [![Integration](https://img.shields.io/badge/Bundlers-4%2F4%20Supported-blue.svg)](#bundler-support)
 
+## 📋 Table of Contents
+
+- [🎯 Problem It Solves](#-problem-it-solves)
+- [📦 Installation](#-installation)
+- [🚀 Quick Start](#-quick-start)
+- [🌟 Key Features](#-key-features)
+  - [Runtime Features](#runtime-features)
+  - [Static Bundle Helper (SBH)](#static-bundle-helper-sbh)
+- [📖 API Reference](#-api-reference)
+  - [Core Methods](#core-methods)
+  - [Advanced Methods](#advanced-methods)
+  - [Cache Management](#cache-management)
+- [📦 Static Bundle Helper](#-static-bundle-helper-production-ready-build-time-optimization)
+  - [What is SBH?](#-what-is-sbh)
+  - [Key Benefits](#-key-benefits)
+  - [Transformation Examples](#-transformation-examples)
+  - [SBH Test Results](#-sbh-test-results)
+  - [Bundler Configuration](#️-bundler-configuration)
+  - [SBH Configuration Options](#️-sbh-configuration-options)
+  - [Advanced Usage](#-advanced-usage)
+  - [Roadmap Extras](#roadmap-extras)
+- [📚 Comprehensive Examples](#-comprehensive-examples)
+  - [Basic Usage](#-basic-usage)
+  - [Multiple Module Loading](#-multiple-module-loading)
+  - [TypeScript with Full Type Safety](#-typescript-with-full-type-safety)
+  - [Preloading for Better UX](#-preloading-for-better-ux)
+  - [Cache Management](#-cache-management)
+- [💡 Real-World Use Cases](#-real-world-use-cases)
+  - [CLI Tool with Heavy Dependencies](#1-️-cli-tool-with-heavy-dependencies)
+  - [Express.js Server with Optional Features](#2--expressjs-server-with-optional-features)
+  - [React App with Code Splitting](#3-️-react-app-with-code-splitting)
+  - [Game Engine with Plugin System](#4--game-engine-with-plugin-system)
+  - [Progressive Web App with Feature Detection](#5--progressive-web-app-with-feature-detection)
+- [🚀 Performance Benefits](#-performance-benefits)
+  - [Startup Time Improvements](#startup-time-improvements)
+  - [Bundle Size Reduction](#bundle-size-reduction)
+- [🏢 Organization](#-organization)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🔗 Links](#-links)
+- [📊 Benchmarks](#-benchmarks)
+
 ## 🎯 Problem It Solves
 
 In large JavaScript/TypeScript projects, static imports load all referenced modules at startup, even if only a subset is used during execution. This leads to:
@@ -1412,3 +1454,6 @@ Performance comparison between static imports and lazy-import:
 **Made with ❤️ by @phantasm0009 organization**
 
 *If you find this project useful, please consider giving it a ⭐ on GitHub!*
+
+
+
